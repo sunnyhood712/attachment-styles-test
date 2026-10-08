@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成人依恋类型测试</title>
+<style>
+:root {
+  --bg: #F7F6F3;
+  --card: #FFFFFF;
+  --primary: #2D3A4A;
+  --accent: #7C8DA5;
+  --text: #2D3A4A;
+  --text-light: #8E99A8;
+  --border: #E2E0DB;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.header { text-align: center; padding: 60px 0 40px; }
+.header h1 { font-size: 28px; font-weight: 600; letter-spacing: 2px; color: var(--primary); margin-bottom: 12px; }
+.header .subtitle { font-size: 14px; color: var(--text-light); letter-spacing: 1px; font-weight: 300; }
+.header .intro {
+  margin-top: 28px; font-size: 14px; color: var(--text-light);
+  line-height: 2; max-width: 560px; margin-left: auto; margin-right: auto; text-align: left;
+}
+
+.divider { width: 40px; height: 2px; background: var(--accent); margin: 32px auto; border-radius: 1px; }
+
+.progress-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--border); z-index: 100; }
+.progress-bar { height: 100%; width: 0; background: var(--accent); transition: width 0.3s ease; }
+
+.question-block {
+  background: var(--card); border-radius: 12px; padding: 32px 28px;
+  margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: all 0.2s;
+}
+.question-block.answered { border-left: 3px solid var(--accent); }
+.question-number { font-size: 12px; color: var(--text-light); letter-spacing: 1px; margin-bottom: 10px; font-weight: 500; }
+.question-text { font-size: 15px; color: var(--text); margin-bottom: 20px; line-height: 1.9; }
+
+.options { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.option-label {
+  flex: 1; min-width: 56px; text-align: center; padding: 10px 4px;
+  border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
+  transition: all 0.2s; font-size: 13px; color: var(--text-light);
+  user-select: none; position: relative;
+}
+.option-label:hover { border-color: var(--accent); color: var(--accent); }
+.option-label input { position: absolute; opacity: 0; pointer-events: none; }
+.option-label.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
+.option-label .opt-num { display: block; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+.option-label .opt-desc { font-size: 11px; opacity: 0.85; }
+
+.submit-area { text-align: center; margin-top: 48px; }
+.btn-submit {
+  display: inline-block; padding: 16px 64px; background: var(--primary); color: #fff;
+  border: none; border-radius: 8px; font-size: 16px; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.btn-submit:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124, 141, 165, 0.3); }
+.btn-submit:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; transform: none; box-shadow: none; }
+.hint { font-size: 12px; color: var(--text-light); margin-top: 16px; }
+
+.result-section { display: none; animation: fadeUp 0.6s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-hero { text-align: center; padding: 48px 0 32px; }
+.result-type-tag {
+  display: inline-block; padding: 6px 20px; border-radius: 20px;
+  font-size: 12px; letter-spacing: 2px; color: #fff; margin-bottom: 16px;
+}
+.result-hero h2 { font-size: 32px; font-weight: 600; letter-spacing: 3px; color: var(--primary); margin-bottom: 8px; }
+.result-hero .result-sub { font-size: 14px; color: var(--text-light); letter-spacing: 1px; }
+
+.chart-container { text-align: center; margin: 40px 0; }
+.chart-container canvas { max-width: 360px; width: 100%; }
+.chart-labels {
+  display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+  margin-top: 16px; font-size: 12px; color: var(--text-light);
+}
+.chart-labels span::before {
+  content: ''; display: inline-block; width: 10px; height: 10px;
+  border-radius: 2px; margin-right: 6px; vertical-align: middle;
+}
+
+.quadrant-container { text-align: center; margin: 20px 0 12px; padding: 0; }
+.quadrant-container canvas { width: 100%; max-width: 600px; height: auto; }
+
+.detail-card {
+  background: var(--card); border-radius: 12px; padding: 32px 28px;
+  margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.detail-card h3 {
+  font-size: 16px; font-weight: 600; color: var(--primary);
+  margin-bottom: 16px; letter-spacing: 1px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.detail-card p { font-size: 14px; color: var(--text); line-height: 2; margin-bottom: 14px; }
+.detail-card p:last-child { margin-bottom: 0; }
+
+.quote-block {
+  padding: 16px 20px; background: #F0EFEC; border-radius: 8px;
+  font-size: 13px; color: #5A6577; line-height: 1.9; margin: 16px 0;
+  border-left: 3px solid var(--accent);
+}
+.quote-block .quote-source {
+  display: block; text-align: right; font-size: 12px; color: var(--text-light); margin-top: 8px;
+}
+
+.score-row { display: flex; align-items: center; margin-bottom: 16px; gap: 12px; }
+.score-row .label { width: 80px; font-size: 13px; color: var(--text-light); flex-shrink: 0; }
+.score-row .bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.score-row .bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.score-row .score-val { width: 44px; font-size: 13px; color: var(--text-light); text-align: right; flex-shrink: 0; }
+
+.traits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.trait-item { padding: 16px; background: var(--bg); border-radius: 8px; font-size: 13px; line-height: 1.7; }
+.trait-item .trait-title { font-weight: 600; color: var(--primary); margin-bottom: 6px; font-size: 13px; }
+.trait-item .trait-desc { color: var(--text-light); font-size: 12px; }
+
+.advice-list { list-style: none; padding: 0; }
+.advice-list li {
+  padding: 12px 0 12px 20px; border-bottom: 1px solid var(--border);
+  font-size: 14px; line-height: 1.8; color: var(--text); position: relative;
+}
+.advice-list li:last-child { border-bottom: none; }
+.advice-list li::before { content: '—'; position: absolute; left: 0; color: var(--accent); }
+
+/* 子维度分析 */
+.subdim-group { margin-bottom: 24px; }
+.subdim-group:last-child { margin-bottom: 0; }
+.subdim-group-title {
+  font-size: 13px; font-weight: 600; color: var(--primary);
+  margin-bottom: 12px; letter-spacing: 0.5px;
+}
+.subdim-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.subdim-row .subdim-info { width: 130px; flex-shrink: 0; }
+.subdim-row .subdim-name { font-size: 13px; color: var(--text); font-weight: 500; }
+.subdim-row .subdim-desc { font-size: 11px; color: var(--text-light); line-height: 1.4; margin-top: 2px; }
+.subdim-row .subdim-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.subdim-row .subdim-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.subdim-row .subdim-val { width: 36px; font-size: 13px; color: var(--text-light); text-align: right; flex-shrink: 0; }
+
+/* 历史记录 */
+.history-empty { font-size: 13px; color: var(--text-light); text-align: center; padding: 12px 0; }
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; gap: 12px;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item .hist-date { color: var(--text-light); font-size: 12px; width: 100px; flex-shrink: 0; }
+.history-item .hist-type {
+  padding: 3px 10px; border-radius: 12px; font-size: 12px; color: #fff; flex-shrink: 0;
+}
+.history-item .hist-score {
+  color: var(--text-light); font-size: 12px; text-align: right; margin-left: auto;
+}
+.history-clear {
+  margin-top: 16px; text-align: center;
+  font-size: 12px; color: var(--text-light); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 4px;
+}
+.history-clear:hover { color: var(--accent); }
+
+/* 分享卡片 */
+.share-canvas-wrap {
+  text-align: center;
+  margin: 20px 0 16px;
+}
+.share-canvas-wrap canvas {
+  width: 100%; max-width: 400px; height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(45, 58, 74, 0.10);
+}
+.btn-share {
+  display: inline-block; padding: 12px 36px;
+  background: var(--primary); color: #fff; border: none;
+  border-radius: 8px; font-size: 14px; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+  margin-top: 8px;
+}
+.btn-share:hover { background: var(--accent); transform: translateY(-1px); }
+.btn-share.secondary {
+  background: transparent; color: var(--text-light);
+  border: 1.5px solid var(--border);
+}
+.btn-share.secondary:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.share-hint {
+  font-size: 12px; color: var(--text-light); margin-top: 12px; text-align: center;
+}
+
+.restart-area { text-align: center; margin-top: 48px; }
+.btn-restart {
+  padding: 12px 40px; background: transparent; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 14px; color: var(--text-light); cursor: pointer;
+  transition: all 0.3s; font-family: inherit; letter-spacing: 1px;
+}
+.btn-restart:hover { border-color: var(--accent); color: var(--accent); }
+
+.disclaimer {
+  margin-top: 40px; padding: 20px; background: #F0EFEC; border-radius: 8px;
+  font-size: 12px; color: var(--text-light); line-height: 1.8; text-align: center;
+}
+
+@media (max-width: 600px) {
+  .container { padding: 24px 16px 60px; }
+  .header h1 { font-size: 22px; }
+  .header { padding: 40px 0 24px; }
+  .question-block { padding: 24px 18px; }
+  .options { gap: 6px; }
+  .option-label { min-width: 44px; padding: 8px 2px; }
+  .option-label .opt-desc { display: none; }
+  .traits-grid { grid-template-columns: 1fr; }
+  .result-hero h2 { font-size: 26px; }
+  .score-row .label { width: 60px; font-size: 12px; }
+  .subdim-row .subdim-info { width: 100px; }
+  .history-item .hist-date { width: 80px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="container" id="app">
+
+  <div id="introPage">
+    <div class="header">
+      <h1>依恋类型测试</h1>
+      <p class="subtitle">ADULT ATTACHMENT STYLE ASSESSMENT</p>
+      <div class="divider"></div>
+      <p class="intro">
+        本测试基于Bartholomew与Horowitz的成人依恋四类型模型及ECR亲密关系经历量表编制，
+        从「依恋焦虑」与「依恋回避」两个维度，帮助你了解自己在人际关系中的依恋倾向。
+        依恋是一种贯穿一生的关系模式，它不仅体现在亲密伴侣之间，也体现在你与朋友、家人、
+        同事乃至泛泛之交的互动中。共30题，约需6分钟。请根据你在这些情境中的
+        <b>真实反应</b>作答，而非你希望自己成为的样子。
+      </p>
+    </div>
+    <div class="submit-area">
+      <button class="btn-submit" onclick="startTest()">开始测试</button>
+      <p class="hint">本测试仅供自我探索参考，不构成心理诊断</p>
+    </div>
+  </div>
+
+  <div id="questionPage" style="display:none;"></div>
+
+  <div id="resultPage" class="result-section"></div>
+
+</div>
+
+<script>
+// ============ 子维度定义 ============
+const SUBDIMENSIONS = {
+  // 依恋焦虑的三个侧面
+  fear_of_abandonment: {
+    name: "害怕被抛弃",
+    parent: "anxiety",
+    desc: "对被疏远、被遗忘的深层担忧"
+  },
+  need_for_reassurance: {
+    name: "寻求确认",
+    parent: "anxiety",
+    desc: "需要他人反复表达关心才安心"
+  },
+  sensitivity_jealousy: {
+    name: "过度敏感",
+    parent: "anxiety",
+    desc: "对细微信号的放大解读与嫉妒"
+  },
+  // 依恋回避的三个侧面
+  emotional_suppression: {
+    name: "情感压抑",
+    parent: "avoidance",
+    desc: "将情绪留给自己消化而非分享"
+  },
+  intimacy_discomfort: {
+    name: "亲密不适",
+    parent: "avoidance",
+    desc: "对深度亲近的本能退避"
+  },
+  independence_priority: {
+    name: "独立优先",
+    parent: "avoidance",
+    desc: "自我依靠高于他人依赖"
+  }
+};
+
+// ============ 题库数据 ============
+// 每题标记所属主维度、子维度以及是否反向计分
+const QUESTIONS = [
+  // ===== 依恋焦虑维度（15题） =====
+  { text: "我在意的人，并不一定像我在乎他们那样在乎我。想到这一点，我心里会隐隐不安。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: false },
+  { text: "当朋友或同事过了很久都没回我消息时，我会忍不住想，是不是自己哪里做得不对。", dim: "anxiety", subdim: "need_for_reassurance", reverse: false },
+  { text: "我需要身边的人时不时地向我确认——他们是真的在乎我、重视我。", dim: "anxiety", subdim: "need_for_reassurance", reverse: false },
+  { text: "如果朋友聚会没有叫上我，我会忍不住反复琢磨其中的原因。", dim: "anxiety", subdim: "sensitivity_jealousy", reverse: false },
+  { text: "我基本不担心身边的人会疏远我。关系自然地来去，我心里是平静的。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: true },
+  { text: "在各种关系里，我常常觉得自己是付出更多、更主动维系的那一方。", dim: "anxiety", subdim: "need_for_reassurance", reverse: false },
+  { text: "和亲近的人发生分歧后，我会担心这段关系会不会就此结束。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: false },
+  { text: "我需要别人反复向我表达关心，才能确信自己是被在乎的。", dim: "anxiety", subdim: "need_for_reassurance", reverse: false },
+  { text: "我害怕一旦别人真正了解我，他们就不会再喜欢真实的我。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: false },
+  { text: "当我在意的人把注意力放在别人身上时，我会感到一种说不出的不安。", dim: "anxiety", subdim: "sensitivity_jealousy", reverse: false },
+  { text: "我不太在意别人是否及时回应我，也很少因此多想什么。", dim: "anxiety", subdim: "need_for_reassurance", reverse: true },
+  { text: "即使是很稳定的友谊，我也会时不时担心对方其实并不那么喜欢我。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: false },
+  { text: "我常常留意身边人对我的态度，是否有那些细微的变化。", dim: "anxiety", subdim: "sensitivity_jealousy", reverse: false },
+  { text: "与人交往之后，我会反复回想自己说过的话，是不是让别人不舒服了。", dim: "anxiety", subdim: "sensitivity_jealousy", reverse: false },
+  { text: "我很少怀疑身边的人对我的感情是否真诚，也不太在意这些。", dim: "anxiety", subdim: "fear_of_abandonment", reverse: true },
+
+  // ===== 依恋回避维度（15题） =====
+  { text: "遇到烦心事的时候，我更习惯自己消化，而不是告诉别人。", dim: "avoidance", subdim: "emotional_suppression", reverse: false },
+  { text: "当有人想要和我变得很亲近时，我心里会本能地升起一种想要后退的冲动。", dim: "avoidance", subdim: "intimacy_discomfort", reverse: false },
+  { text: "我觉得向信任的人倾诉自己的感受，是件很自然的事。", dim: "avoidance", subdim: "emotional_suppression", reverse: true },
+  { text: "我会下意识地避免和他人走得太近，保持距离让我更自在。", dim: "avoidance", subdim: "intimacy_discomfort", reverse: false },
+  { text: "遇到困难时，向身边的人开口求助对我来说并不难。", dim: "avoidance", subdim: "independence_priority", reverse: true },
+  { text: "我更愿意自己扛下所有问题，而不是去麻烦别人。", dim: "avoidance", subdim: "independence_priority", reverse: false },
+  { text: "当朋友想和我聊他们内心深处的感受时，我会感到有些不自在。", dim: "avoidance", subdim: "intimacy_discomfort", reverse: false },
+  { text: "相比起亲密无间，我更喜欢和别人保持一种不远不近的关系。", dim: "avoidance", subdim: "intimacy_discomfort", reverse: false },
+  { text: "我能够坦率地和亲近的人谈论自己的感受，不觉得有什么需要藏着的。", dim: "avoidance", subdim: "emotional_suppression", reverse: true },
+  { text: "我很难真正地完全信任一个人，哪怕相处多年也一样。", dim: "avoidance", subdim: "independence_priority", reverse: false },
+  { text: "当一段关系变得越来越深入稳定时，我反而会想抽身、想喘口气。", dim: "avoidance", subdim: "intimacy_discomfort", reverse: false },
+  { text: "我不习惯在别人面前流露脆弱的一面，更愿意一个人消化情绪。", dim: "avoidance", subdim: "emotional_suppression", reverse: false },
+  { text: "与其向别人倾诉烦恼，我更倾向于自己扛着、自己想办法。", dim: "avoidance", subdim: "emotional_suppression", reverse: false },
+  { text: "依赖别人对我来说是有风险的，保持自给自足才让我感到真正安全。", dim: "avoidance", subdim: "independence_priority", reverse: false },
+  { text: "在人际关系中，我经常需要更多的个人空间，过于频繁的社交会让我感到耗竭。", dim: "avoidance", subdim: "independence_priority", reverse: false }
+];
+
+const SHUFFLED = [...QUESTIONS].sort(() => Math.random() - 0.5);
+
+// ============ 四类型定义 ============
+const TYPES = {
+  secure: {
+    name: "安全型",
+    en: "Secure",
+    color: "#6B9E7A",
+    tagColor: "#6B9E7A",
+    short: "在亲密中自在，在独立中安心",
+    desc: [
+      "在感情上很容易接近他人。不管是依赖他人还是被人依赖都感觉心安。不会忧心独处和不为人接纳。这是Bartholomew与Horowitz在1991年提出的四类型模型中，对安全型依恋的原型描述。",
+      "安全型依恋的根基，在生命的最初就已经开始铺设。罗兰·米勒在《亲密关系》中这样描述：婴儿哭喊时，慈爱的抚育者总是如约而至，得到此种呵护的婴儿就能舒心地依赖他人，觉得他人可以信任，能从别人那里获得安全和友善。结果，这些儿童就发展出安全型依恋——他们快乐地与他人交往，很容易与他人发展出轻松信任的人际关系。",
+      "Robert Karen在《Becoming Attached》中进一步指出，安全型依恋被看作情感健康的来源，它给孩子一种确信——有人会在他需要的时候出现，从而使他拥有与他人建立令人满意的关系的能力。这种确信并不会随着童年结束而消失，也不会仅仅停留在恋爱关系里。安全型的人在与朋友的相处中、在职场的人际往来中、在与家人的联结中，都能保持一种较为稳定的信任与开放。",
+      "安全型的人一般对自己和他人都有积极的看法，记忆中的父母也是充满爱心、提供支持的。这不是说安全型的人从未经历过失望或伤害，而是他们拥有一种内在的稳定感，使他们在面对关系中的不确定时，倾向于沟通而非攻击或逃离。",
+      "需要特别说明的是，安全型并不是“完美型”。Hazan与Shaver在1987年的调查中发现，约40%的人认为自己不安全——他们要么很难信任和依赖他人，要么十分担心自己的人际关系能否持续。这意味着，不安全依恋是相当普遍的人类经验，而非某种缺陷。"
+    ],
+    quotes: [
+      { text: "安全型的人能更积极快乐地寻求亲密、相互依赖的人际关系。", source: "罗兰·米勒《亲密关系》" },
+      { text: "安全型依恋被看作情感健康的来源，它给孩子一种确信——有人会在他需要的时候出现。", source: "Robert Karen, Becoming Attached" }
+    ],
+    traits: [
+      { title: "情感稳定", desc: "面对关系中的波动，你能够保持相对平和的心态" },
+      { title: "信任能力", desc: "你倾向于相信他人的善意，不会时刻怀疑对方的动机" },
+      { title: "边界灵活", desc: "你能在独立与亲密之间找到舒适的平衡点" },
+      { title: "沟通直接", desc: "你更倾向于坦率表达自己的需求和感受" }
+    ]
+  },
+
+  anxious: {
+    name: "焦虑型",
+    en: "Anxious / Preoccupied",
+    color: "#D4915D",
+    tagColor: "#D4915D",
+    short: "渴望亲密，却常担忧不被珍惜",
+    desc: [
+      "希望在人际关系中投入全部的感情，但经常发现他人并不乐意把关系发展到如自己期望的那样亲密。没有亲密关系会不安，有时还会担心他人不会像自己看重对方一样看重自己。这是Bartholomew四类型模型中“痴迷型”（即焦虑型）的原型描述。",
+      "焦虑型的核心特征，Amir Levine和Rachel Heller在《Attached》中概括得很直接：焦虑型的人常常全神贯注于他们的关系，倾向于担心他人是否有能力爱他们。这种担忧并不局限于伴侣关系。罗兰·米勒在《亲密关系》中追溯了它的源头：如果大人对孩子的关照无法预测而且并不持续，抚育者有时热情关注，有时却心不在焉、焦急烦躁，有时根本就不出现，这些孩子就会对他人产生焦虑、复杂的情感。这些孩子由于不能确定抚育者是否以及何时会回来关照自己，与他人的关系就会变得紧张和过分依赖，表现出对他人的过分贪求。",
+      "焦虑型的人拥有一种独特的感受力——一种对关系威胁的“第六感”。Levine和Heller写道，焦虑型的人会比其他人更迅速地进入一种敏锐的激活状态，他们对自己周遭的世界有着事无巨细的洞察力，很容易从他人的肢体语言中察觉到消极与抗拒。这种敏感性是一把双刃剑：它让焦虑型的人成为极具共情力的朋友和同事，但也意味着他们更容易在细微的信号中读出“危险”。",
+      "焦虑型的人并不是“过度需求”。他们真正追求的，是一种稳定的安全感。当这种安全感缺失时，他们的依恋系统会被强烈激活，本能地想要靠近、确认、抓住关系。但这种方式有时会让对方感到压力，进而拉开距离，形成“越追越远、越远越追”的循环。这不是任何一方的错，而是两种依恋策略在互动中产生的自然张力。",
+      "《Becoming Attached》的作者Robert Karen曾这样描述矛盾型（焦虑型的前身）儿童：大多数的矛盾型儿童都十分害怕遭到抛弃，所以他们通常倾向于暗地里的或防御式的攻击，但在感觉遭到母亲或其他重要人物背叛的时候，情绪也有可能彻底爆发。成年后，这种模式依然可见——焦虑型的人在关系中往往倾注了巨大的情感浓度，他们的在乎是真实的、热烈的，只是需要一种更稳定的表达方式来让它被接收到。"
+    ],
+    quotes: [
+      { text: "焦虑型的人常常全神贯注于他们的关系，倾向于担心他人是否有能力爱他们。", source: "Amir Levine & Rachel Heller, Attached" },
+      { text: "这些孩子由于不能确定抚育者是否以及何时会回来关照自己，与他人的关系就会变得紧张和过分依赖。", source: "罗兰·米勒《亲密关系》" }
+    ],
+    traits: [
+      { title: "情感敏锐", desc: "你对他人情绪的变化非常敏感，能快速察觉关系中的细微变化" },
+      { title: "投入深厚", desc: "你愿意为关系付出大量情感和精力，全情投入" },
+      { title: "安全感需求高", desc: "你渴望稳定而持续的关心确认，不确定感会让你焦虑" },
+      { title: "激活策略", desc: "当感到威胁时，你会本能地想要靠近对方寻求安慰" }
+    ]
+  },
+
+  avoidant: {
+    name: "回避型",
+    en: "Dismissive-Avoidant",
+    color: "#5B7FA5",
+    tagColor: "#5B7FA5",
+    short: "珍视独立，与过度亲密保持距离",
+    desc: [
+      "即使没有亲密关系也安心。独立和自给自足更加重要，不喜欢依赖别人或者让别人依赖。这是Bartholomew四类型模型中“疏离型”（即回避型）的原型描述。",
+      "回避型的形成，同样可以在早期经历中找到线索。罗兰·米勒在《亲密关系》中写道：第三组婴儿的抚育者在关照孩子时，带着拒绝或敌对的态度勉强为之。孩子就会认为他人是靠不住的，因而在与他人的关系上畏缩不前，表现出回避型依恋。回避依恋型的孩子经常怀疑和迁怒他人，不容易形成信任和亲密的人际关系。",
+      "Amir Levine和Rachel Heller在《Attached》中给了回避型一个精准的概括：回避型的人将亲密等同于失去独立性，并不断试图将亲密感最小化。这种策略的核心，并不是“不在乎”，而是一种防御性的适应——当表达需求曾经带来的是拒绝或忽视，一个人学会的最安全的做法，就是不再表达需求。这种模式不仅出现在恋爱关系中，也体现在与朋友、同事、家人的相处中。",
+      "Bartholomew指出，人们之所以避免和他人亲密接触，存在两种不同的原因。回避型属于其中一种：他们独立自主、自力更生，真正地喜欢我行我素和自由自在，而不愿意与他人发生紧密的依恋关系。这与恐惧型有本质区别——恐惧型的人内心渴望亲密却害怕被伤害，而回避型的人在主观上并不感到自己被亲密关系所吸引，他们更倾向于认为独立本身就是一种满足。",
+      "回避型的人在关系中的“逃跑”，往往不是不在乎，而是害怕被淹没、害怕失去自主。他们可能在朋友需要情感回应时感到无所适从，在冲突发生时选择冷处理或抽离。这些行为在他人看来是冷漠，但在回避型的内在体验中，它是一种自我保护——如果我不需要任何人，就没有人能让我失望。",
+      "值得留意的是，罗兰·米勒指出，一次悲痛欲绝的分手会让原本安全型的人不再安全，而一段如胶似漆的恋情也能慢慢让回避亲密的人不再怀疑和戒备亲密感情。依恋模式并非一成不变，它是可以被新的关系经验所重塑的。"
+    ],
+    quotes: [
+      { text: "回避型的人将亲密等同于失去独立性，并不断试图将亲密感最小化。", source: "Amir Levine & Rachel Heller, Attached" },
+      { text: "孩子就会认为他人是靠不住的，因而在与他人的关系上畏缩不前，表现出回避型依恋。", source: "罗兰·米勒《亲密关系》" }
+    ],
+    traits: [
+      { title: "独立自主", desc: "你善于自我调节，能在关系中保持较强的个人边界" },
+      { title: "理性冷静", desc: "面对冲突时，你倾向于用理性分析而非情感表达来应对" },
+      { title: "去激活策略", desc: "当关系过于亲密时，你会本能地想拉开距离" },
+      { title: "低表达倾向", desc: "你不太习惯向他人表达内心深处的感受和需求" }
+    ]
+  },
+
+  fearful: {
+    name: "恐惧型",
+    en: "Fearful-Avoidant",
+    color: "#9B6B7A",
+    tagColor: "#9B6B7A",
+    short: "渴望亲密，又因害怕而不敢靠近",
+    desc: [
+      "和他人发生亲密接触使我不安。感情上我渴望亲密关系，但很难完全相信他人或依赖他人。担心自己和他人变得太亲密会受到伤害。这是Bartholomew与Horowitz在1991年提出的恐惧型依恋的原型陈述。",
+      "恐惧型与回避型的关键区别在于：回避型的人在主观上并不渴望亲密，而恐惧型的人渴望亲密，却因为害怕而不敢靠近。Bartholomew指出，恐惧型的人同时拥有对自我的消极看法（认为自己不值得被爱和支持）和对他人消极的预期（认为他人不可获得、会拒绝自己）。这两种消极模型叠加在一起，使得恐惧型的人在关系中陷入一种深刻的矛盾。",
+      "在《亲密关系》中，恐惧型被描述为：和他人发生亲密关系会不安，感情上渴望亲密关系，但很难完全相信他人或依赖他人，担心自己和他人变得太亲密会受到伤害。这种描述与Bartholomew的学术定义一脉相承，指向同一个核心：恐惧型的人并非“不需要连接”，恰恰相反，他们比很多人更渴望被理解和接纳，只是这种渴望被一种强烈的恐惧所抑制。",
+      "恐惧型依恋往往与更严重的早期经历相关。罗兰·米勒在讨论依恋类型的成因时指出，早期的人际经验会影响个体后来人际关系的发展轨迹。对于恐惧型的人来说，这些经验可能包括照顾者的不可预测性、情感或身体上的伤害，或重要依恋对象的丧失。成年后，当关系走向深入，那些未被处理的恐惧会被重新激活。",
+      "Robert Karen在《Becoming Attached》中引用的这段话，或许能帮助恐惧型的人理解自己：大多数的矛盾型儿童都十分害怕遭到抛弃，所以他们通常倾向于暗地里的或防御式的攻击，但在感觉遭到母亲或其他重要人物背叛的时候，情绪也有可能彻底爆发。如果你在关系中时而热情、时而抽离，这并不意味着你不正常，而意味着你的依恋系统曾经为了保护你而学会了一种高度警觉的策略。",
+      "尤其需要强调的是：依恋类型是习得的，当然就可能被改变。不安全依恋比安全依恋更容易改变。好的关系对象能够让你的依恋模式发生好的变化。这不是一句安慰，而是依恋研究反复验证的结论。"
+    ],
+    quotes: [
+      { text: "感情上我渴望亲密关系，但很难完全相信他人或依赖他人。", source: "Bartholomew & Horowitz, 1991" },
+      { text: "恐惧型的人既认为自己不值得被爱和支持，也认为他人不可获得、会拒绝自己。", source: "Bartholomew & Horowitz, 1991" }
+    ],
+    traits: [
+      { title: "矛盾拉扯", desc: "你同时拥有强烈的亲近渴望和对亲密的恐惧" },
+      { title: "自我评价低", desc: "你倾向于认为自己不值得被爱，对自身价值不够确信" },
+      { title: "信任困难", desc: "你很难完全信任他人，总是预想被伤害的可能性" },
+      { title: "情绪波动", desc: "你的情绪状态可能较大程度地受关系状态影响" }
+    ]
+  }
+};
+
+// ============ 状态 ============
+let answers = new Array(SHUFFLED.length).fill(null);
+let currentResult = null;
+
+// ============ 渲染题目 ============
+function startTest() {
+  document.getElementById("introPage").style.display = "none";
+  document.getElementById("questionPage").style.display = "block";
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const container = document.getElementById("questionPage");
+  let html = "";
+  html += '<div class="header" style="padding:20px 0 16px"><h1 style="font-size:20px">人际关系体验问卷</h1>';
+  html += '<p class="subtitle">请根据你在这些情境中的真实反应作答</p></div>';
+
+  SHUFFLED.forEach((q, i) => {
+    html += `<div class="question-block" id="qb-${i}">`;
+    html += `<div class="question-number">第 ${i + 1} 题 / 共 ${SHUFFLED.length} 题</div>`;
+    html += `<div class="question-text">${q.text}</div>`;
+    html += `<div class="options">`;
+    const labels = ["非常不同意", "比较不同意", "有点不同意", "中立", "有点同意", "比较同意", "非常同意"];
+    const vals = [1, 2, 3, 4, 5, 6, 7];
+    vals.forEach((v, j) => {
+      html += `<label class="option-label" id="opt-${i}-${v}" onclick="selectOption(${i},${v})">
+        <input type="radio" name="q${i}" value="${v}">
+        <span class="opt-num">${v}</span>
+        <span class="opt-desc">${labels[j]}</span>
+      </label>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `<div class="submit-area">
+    <button class="btn-submit" id="btnSubmit" disabled onclick="calculateResult()">查看结果</button>
+    <p class="hint" id="hintText">请回答所有题目后查看结果</p>
+  </div>`;
+
+  container.innerHTML = html;
+}
+
+// ============ 选择选项 ============
+function selectOption(qIndex, value) {
+  answers[qIndex] = value;
+
+  for (let v = 1; v <= 7; v++) {
+    const el = document.getElementById(`opt-${qIndex}-${v}`);
+    if (el) el.classList.toggle("selected", v === value);
+  }
+
+  document.getElementById(`qb-${qIndex}`).classList.add("answered");
+
+  const answered = answers.filter(a => a !== null).length;
+  document.getElementById("progressBar").style.width = (answered / SHUFFLED.length * 100) + "%";
+
+  const btn = document.getElementById("btnSubmit");
+  if (answered === SHUFFLED.length) {
+    btn.disabled = false;
+    document.getElementById("hintText").textContent = "已完成所有题目";
+  } else {
+    document.getElementById("hintText").textContent = `已完成 ${answered}/${SHUFFLED.length} 题`;
+  }
+}
+
+// ============ 计算得分 ============
+function calculateResult() {
+  const anxietyItems = [];
+  const avoidItems = [];
+  // 子维度累加
+  const subdimItems = {};
+  for (const k in SUBDIMENSIONS) subdimItems[k] = [];
+
+  SHUFFLED.forEach((q, i) => {
+    let score = answers[i];
+    if (q.reverse) score = 8 - score;
+    if (q.dim === "anxiety") anxietyItems.push(score);
+    else avoidItems.push(score);
+    if (q.subdim) subdimItems[q.subdim].push(score);
+  });
+
+  const anxietyAvg = anxietyItems.reduce((a, b) => a + b, 0) / anxietyItems.length;
+  const avoidAvg = avoidItems.reduce((a, b) => a + b, 0) / avoidItems.length;
+
+  // 子维度平均分
+  const subdimScores = {};
+  for (const k in subdimItems) {
+    const arr = subdimItems[k];
+    subdimScores[k] = arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  }
+
+  const highAnxiety = anxietyAvg >= 4.0;
+  const highAvoid = avoidAvg >= 4.0;
+
+  let typeKey;
+  if (!highAnxiety && !highAvoid) typeKey = "secure";
+  else if (highAnxiety && !highAvoid) typeKey = "anxious";
+  else if (!highAnxiety && highAvoid) typeKey = "avoidant";
+  else typeKey = "fearful";
+
+  // 保存本次结果供分享卡片使用
+  currentResult = {
+    typeKey,
+    anxietyAvg,
+    avoidAvg,
+    subdimScores,
+    date: new Date().toISOString()
+  };
+
+  // 保存到历史记录
+  saveToHistory(currentResult);
+
+  showResult(typeKey, anxietyAvg, avoidAvg, subdimScores);
+}
+
+// ============ 显示结果 ============
+function showResult(typeKey, anxietyAvg, avoidAvg, subdimScores) {
+  const t = TYPES[typeKey];
+  document.getElementById("questionPage").style.display = "none";
+  const page = document.getElementById("resultPage");
+  page.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const safeScore = Math.max(0, 7 - (anxietyAvg + avoidAvg) / 2 + 1.5);
+
+  let html = "";
+
+  html += `<div class="result-hero">
+    <div class="result-type-tag" style="background:${t.tagColor}">${t.en}</div>
+    <h2>${t.name}</h2>
+    <p class="result-sub">你的依恋类型分析报告</p>
+  </div>`;
+
+  // 六边形雷达图
+  html += `<div class="chart-container">
+    <canvas id="radarCanvas" width="600" height="600"></canvas>
+    <div class="chart-labels">
+      <span style="color:#D4915D">依恋焦虑</span>
+      <span style="color:#5B7FA5">依恋回避</span>
+      <span style="color:#6B9E7A">安全倾向</span>
+      <span style="color:#9B6B7A">关系信任</span>
+      <span style="color:#7C8DA5">情感表达</span>
+      <span style="color:#B8A06B">自我价值感</span>
+    </div>
+  </div>`;
+
+  // 四象限图
+  html += `<div class="detail-card">
+    <h3>四类型象限定位</h3>
+    <div class="quadrant-container">
+      <canvas id="quadrantCanvas" width="900" height="900"></canvas>
+    </div>
+    <p style="font-size:12px;color:var(--text-light);margin-top:12px;text-align:center">
+      横轴为依恋焦虑，纵轴为依恋回避；虚线交点为分界阈值（4.0）。圆点为你本次测试的实际位置。
+    </p>
+  </div>`;
+
+  // 维度得分
+  html += `<div class="detail-card">
+    <h3>维度得分</h3>
+    <div class="score-row">
+      <span class="label">依恋焦虑</span>
+      <div class="bar-bg"><div class="bar-fill" style="width:${(anxietyAvg/7*100).toFixed(1)}%;background:#D4915D"></div></div>
+      <span class="score-val">${anxietyAvg.toFixed(1)}</span>
+    </div>
+    <div class="score-row">
+      <span class="label">依恋回避</span>
+      <div class="bar-bg"><div class="bar-fill" style="width:${(avoidAvg/7*100).toFixed(1)}%;background:#5B7FA5"></div></div>
+      <span class="score-val">${avoidAvg.toFixed(1)}</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-light);margin-top:12px">各维度满分为7分，4分以上视为偏高。本测试基于Bartholomew & Horowitz四类型模型与ECR量表框架，测量的是你在各种人际关系中的一般倾向，而非仅针对伴侣关系。</p>
+  </div>`;
+
+  // 子维度细析
+  html += `<div class="detail-card">
+    <h3>子维度细析</h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:18px">依恋焦虑与依恋回避各自包含三个侧面。通过对比子维度得分，你可以看到自己在哪些具体的面向更为突出，哪些相对平和。</p>
+
+    <div class="subdim-group">
+      <div class="subdim-group-title">依恋焦虑的三个侧面</div>`;
+  ["fear_of_abandonment", "need_for_reassurance", "sensitivity_jealousy"].forEach(k => {
+    const sd = SUBDIMENSIONS[k];
+    const v = subdimScores[k] || 0;
+    html += `<div class="subdim-row">
+      <div class="subdim-info">
+        <div class="subdim-name">${sd.name}</div>
+        <div class="subdim-desc">${sd.desc}</div>
+      </div>
+      <div class="subdim-bar-bg"><div class="subdim-bar-fill" style="width:${(v/7*100).toFixed(1)}%;background:#D4915D"></div></div>
+      <div class="subdim-val">${v.toFixed(1)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="subdim-group">
+      <div class="subdim-group-title">依恋回避的三个侧面</div>`;
+  ["emotional_suppression", "intimacy_discomfort", "independence_priority"].forEach(k => {
+    const sd = SUBDIMENSIONS[k];
+    const v = subdimScores[k] || 0;
+    html += `<div class="subdim-row">
+      <div class="subdim-info">
+        <div class="subdim-name">${sd.name}</div>
+        <div class="subdim-desc">${sd.desc}</div>
+      </div>
+      <div class="subdim-bar-bg"><div class="subdim-bar-fill" style="width:${(v/7*100).toFixed(1)}%;background:#5B7FA5"></div></div>
+      <div class="subdim-val">${v.toFixed(1)}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // 类型解读
+  html += `<div class="detail-card">
+    <h3>你的依恋类型解读</h3>`;
+  t.desc.forEach(p => {
+    html += `<p>${p}</p>`;
+  });
+  if (t.quotes && t.quotes.length > 0) {
+    t.quotes.forEach(q => {
+      html += `<div class="quote-block">“${q.text}”<span class="quote-source">—— ${q.source}</span></div>`;
+    });
+  }
+  html += `</div>`;
+
+  // 核心特征
+  html += `<div class="detail-card">
+    <h3>核心特征</h3>
+    <div class="traits-grid">`;
+  t.traits.forEach(tr => {
+    html += `<div class="trait-item">
+      <div class="trait-title">${tr.title}</div>
+      <div class="trait-desc">${tr.desc}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // 成因分析
+  html += `<div class="detail-card">
+    <h3>可能的成因分析</h3>
+    ${getCauseText(typeKey)}
+  </div>`;
+
+  // 成长建议
+  html += `<div class="detail-card">
+    <h3>成长方向与建议</h3>
+    <ul class="advice-list">`;
+  getAdvice(typeKey).forEach(a => {
+    html += `<li>${a}</li>`;
+  });
+  html += `</ul></div>`;
+
+  // 分享卡片
+  html += `<div class="detail-card">
+    <h3>分享卡片</h3>
+    <div class="share-canvas-wrap">
+      <canvas id="shareCanvas" width="750" height="1050"></canvas>
+    </div>
+    <div style="text-align:center">
+      <button class="btn-share" onclick="downloadShareCard()">下载图片</button>
+    </div>
+    <p class="share-hint">长按或右键可保存图片，方便分享给朋友</p>
+  </div>`;
+
+  // 历史记录
+  html += `<div class="detail-card">
+    <h3>历史记录</h3>
+    <div id="historyContainer"></div>
+  </div>`;
+
+  // 重新测试
+  html += `<div class="restart-area">
+    <button class="btn-restart" onclick="restartTest()">重新测试</button>
+  </div>`;
+
+  // 免责声明
+  html += `<div class="disclaimer">
+    本测试基于Bartholomew & Horowitz成人依恋四类型模型和ECR量表理论框架设计，引用的原文表述来自罗兰·米勒《亲密关系》、Amir Levine & Rachel Heller《Attached》、Robert Karen《Becoming Attached》等著作。测试结果仅供自我探索与学习参考，不构成心理诊断或治疗建议。依恋类型并非固定标签，研究表明约30%的人在不同关系中会呈现不同倾向，且依恋模式可以通过新的关系体验和刻意练习逐步改变。
+  </div>`;
+
+  page.innerHTML = html;
+
+  requestAnimationFrame(() => {
+    drawRadar(typeKey, anxietyAvg, avoidAvg, safeScore);
+    drawQuadrant(typeKey, anxietyAvg, avoidAvg);
+    drawShareCard(typeKey, anxietyAvg, avoidAvg);
+    renderHistory();
+  });
+}
+
+// ============ 成因文本 ============
+function getCauseText(type) {
+  const texts = {
+    secure: `<p>安全型依恋通常源于童年时期照顾者能够敏感地回应你的需求。罗兰·米勒在《亲密关系》中描述了这一过程：婴儿哭喊时，慈爱的抚育者总是如约而至，得到此种呵护的婴儿就能舒心地依赖他人，觉得他人可以信任，能从别人那里获得安全和友善。</p>
+      <p>这种稳定而一致的回应让你内化了一种信念——“我值得被爱，他人是可靠的”。安全型的人一般对自己和他人都有积极的看法，记忆中的父母也是充满爱心、提供支持的。安全型约占人群的50-60%，是四种类型中最常见的一种。</p>
+      <p>在成长过程中，良好的人际经验——包括友谊、师生关系、职场关系等——也会持续强化这种安全感。依恋类型不断受到我们成人后经历的影响，因此安全型的人如果在成年后遭遇重大关系创伤，也可能暂时滑向不安全的一端。</p>`,
+
+    anxious: `<p>焦虑型依恋往往与童年时期照顾者回应方式的不一致有关。罗兰·米勒在《亲密关系》中写道：如果大人对孩子的关照无法预测而且并不持续，抚育者有时热情关注，有时却心不在焉、焦急烦躁，有时根本就不出现，这些孩子就会对他人产生焦虑、复杂的情感。这些孩子由于不能确定抚育者是否以及何时会回来关照自己，与他人的关系就会变得紧张和过分依赖，表现出对他人的过分贪求。</p>
+      <p>在脱离原生家庭后，焦虑型的人可能特别容易在各种关系中寻找一种理想化的安全感。当现实关系无法完全满足这种期待时，不安感会进一步加深。如果同伴关系、职场关系或恋爱经历中反复经历被冷落、被忽视的感受，焦虑倾向可能被巩固。</p>
+      <p>但同样重要的是，依恋模式并非一成不变。研究显示，与安全型朋友的长期稳定互动，或者与安全型伴侣的关系，都能帮助焦虑型个体逐步重塑内在的安全感。</p>`,
+
+    avoidant: `<p>回避型依恋通常与童年时期的情感忽视或被拒绝有关。罗兰·米勒在《亲密关系》中描述了这一形成过程：抚育者在关照孩子时，带着拒绝或敌对的态度勉强为之。孩子就会认为他人是靠不住的，因而在与他人的关系上畏缩不前，表现出回避型依恋。回避依恋型的孩子经常怀疑和迁怒他人，不容易形成信任和亲密的人际关系。</p>
+      <p>在脱离家庭后，回避型的人可能发现独立确实让自己避免了很多伤害，但也在不经意间隔绝了温暖。如果环境中缺乏安全的关系示范，或曾经的求助经历让人失望，回避倾向会被巩固。这种模式会扩散到各类关系中——不只是恋爱，也包括友谊、同事关系和家庭联结。</p>
+      <p>值得留意的是，罗兰·米勒指出，一段如胶似漆的恋情也能慢慢让回避亲密的人不再怀疑和戒备亲密感情。回避型依恋者在获得足够安全的伴侣关系或友谊后，回避倾向有可能逐渐降低。</p>`,
+
+    fearful: `<p>恐惧型依恋往往与更严重的早期经历相关。Bartholomew指出，恐惧型的人同时拥有对自我的消极看法和对他人消极的预期——既认为自己不值得被爱和支持，也认为他人不可获得、会拒绝自己。</p>
+      <p>罗兰·米勒在《亲密关系》中提醒我们，早期的人际经验会影响个体后来人际关系的发展轨迹。对于恐惧型的人来说，这些经验可能包括照顾者的不可预测性、情感或身体上的伤害，或重要依恋对象的丧失。成年后，当关系走向深入——无论是恋爱、友谊还是职场中的深度合作——那些未被处理的恐惧都会被重新激活。</p>
+      <p>在脱离家庭后，恐惧型的人可能反复陷入“靠近—受伤—远离—孤独—再靠近”的循环。但依恋研究反复验证的一个结论是：依恋类型既然是习得的，就可能被改变。不安全依恋比安全依恋更容易改变。专业的心理支持和一段足够安全的关系体验，都能帮助恐惧型的人逐步建立新的内在工作模型。</p>`
+  };
+  return texts[type];
+}
+
+// ============ 建议文本 ============
+function getAdvice(type) {
+  const adviceMap = {
+    secure: [
+      "你的安全型依恋是宝贵的资源。在各种关系中继续保持坦率沟通和相互支持的模式。",
+      "当身边的人处于不安全依恋模式时，你稳定的回应本身就是一种“矫正性情感体验”。罗兰·米勒指出，好的关系对象能够让你的依恋模式发生好的变化——你完全有可能成为对方的那段“好的关系”。",
+      "注意不要因为自己的安全感充足而忽视他人的不安。主动给予确认和安抚，对焦虑型或恐惧型的朋友、同事、伴侣而言意义重大。",
+      "继续保持对自身情绪的觉察。安全型也并非永远不会有焦虑或回避的时刻，重大生活压力或关系创伤可能暂时动摇你的安全感。"
+    ],
+    anxious: [
+      "练习识别触发焦虑的时刻。当朋友或同事晚回消息让你不安时，试着暂停追问，转而问自己：“这种恐慌让我想起什么？”焦虑型的人拥有一种对关系威胁的“第六感”，这种敏感性本身是中性的——关键在于你是否能在信号出现后给自己一个缓冲。",
+      "建立自我安抚的仪式。正念呼吸、写日记、运动，这些能帮助你在焦虑时先稳住自己，而不是立刻冲向他人寻求确认。",
+      "与身边的人进行“需求对话”。用“我感到……我需要……”的句式代替指责或反复确认。焦虑型的人真正追求的是一种稳定的安全感，直接表达这个需求，比通过情绪化的方式索求更有效。",
+      "尝试区分“事实”和“感受”。朋友没有回复不等于不在乎你。焦虑型的敏感性容易将细微信号解读为威胁，练习在感受和事实之间留出一点空间。",
+      "罗兰·米勒指出，依恋类型不断受到成人后经历的影响。与安全型的朋友或伴侣的稳定互动可以逐渐重塑你的依恋模式——你不需要独自完成这个过程。"
+    ],
+    avoidant: [
+      "尝试在安全的关系中做“小步暴露”：向一位信任的朋友分享一个小的感受，观察对方是否接纳。回避型的人习惯将亲密需求压抑在内心，但小剂量的情感表达可以帮助你重新校准“依赖是否安全”的判断。",
+      "当产生逃避冲动时，先不急着离开，给自己10分钟的缓冲时间。Bartholomew指出，回避型的人倾向于“去激活”自己的依恋需求——但去激活是一种策略，不是不可改变的本能。",
+      "练习用语言表达需求。哪怕只是简单地对同事说“我今天有点累”，也是打开情感联结的开始。回避型的人往往擅长处理实际问题，却在面对情感需求时感到无所适从——从最微小的一步开始。",
+      "理解你的回避不是冷漠，而是一种曾经的自我保护。罗兰·米勒提醒我们，一次悲痛欲绝的分手会让原本安全型的人不再安全，而一段如胶似漆的恋情也能慢慢让回避亲密的人不再怀疑和戒备亲密感情。你的防御是在保护你曾经脆弱的自己，但现在你可以慢慢学习新的方式。",
+      "定期与信任的人进行20秒以上的深度拥抱。这种身体层面的联结可以促进催产素分泌，从生理层面帮助建立安全感——对于习惯用理性应对一切的回避型的人来说，身体有时比语言更容易打开通道。"
+    ],
+    fearful: [
+      "你的矛盾感受是可以被理解的。Bartholomew的研究表明，恐惧型的人同时拥有对自我和他人的消极模型——这意味你在关系中反复拉扯，不是因为你“作”，而是因为你内在的两套信念系统在同时运作。首先对自己温柔一些。",
+      "当在关系中反复拉扯时，试着识别背后的核心恐惧：是害怕被抛弃，还是害怕失去自我？恐惧型的人往往同时被两种恐惧驱动，分清它们可以帮助你更精准地回应自己的需求。",
+      "考虑寻求专业心理咨询的帮助。恐惧型依恋往往与更严重的早期经历有关，专业的支持能帮助你更安全地探索这些议题，而不必独自承受。",
+      "建立“安全岛”练习：在感到被淹没时，想象一个让你感到绝对安全的地方，在那里停留片刻。恐惧型的人需要一个内在的锚点，在依恋系统被强烈激活时帮助自己回到当下。",
+      "请记住罗兰·米勒的话：依恋类型既然是习得的，就可能被改变。不安全依恋比安全依恋更容易改变。你不需要永远活在“想要靠近又害怕受伤”的循环里。"
+    ]
+  };
+  return adviceMap[type];
+}
+
+// ============ 六边形雷达图 ============
+function drawRadar(typeKey, anxietyAvg, avoidAvg, safeScore) {
+  const canvas = document.getElementById("radarCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const W = 600, H = 600;
+  const cx = W / 2, cy = H / 2 + 10;
+  const R = 200;
+  const levels = 5;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const values = [
+    anxietyAvg / 7,
+    avoidAvg / 7,
+    safeScore / 7,
+    1 - (anxietyAvg + avoidAvg) / 14,
+    1 - avoidAvg / 9,
+    1 - anxietyAvg / 9
+  ].map(v => Math.max(0.05, Math.min(1, v)));
+
+  const labels = ["依恋焦虑", "依恋回避", "安全倾向", "关系信任", "情感表达", "自我价值感"];
+  const colors = ["#D4915D", "#5B7FA5", "#6B9E7A", "#9B6B7A", "#7C8DA5", "#B8A06B"];
+  const N = 6;
+
+  for (let l = levels; l >= 1; l--) {
+    const r = R * l / levels;
+    ctx.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const angle = (Math.PI * 2 / N) * i - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = l === levels ? "#C8C5BE" : "#E2E0DB";
+    ctx.lineWidth = l === levels ? 1.5 : 0.8;
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < N; i++) {
+    const angle = (Math.PI * 2 / N) * i - Math.PI / 2;
+    const x = cx + R * Math.cos(angle);
+    const y = cy + R * Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = "#E2E0DB";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  for (let i = 0; i < N; i++) {
+    const angle = (Math.PI * 2 / N) * i - Math.PI / 2;
+    const r = R * values[i];
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = "rgba(124, 141, 165, 0.15)";
+  ctx.fill();
+  ctx.strokeStyle = "#7C8DA5";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  for (let i = 0; i < N; i++) {
+    const angle = (Math.PI * 2 / N) * i - Math.PI / 2;
+    const r = R * values[i];
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  ctx.font = "500 16px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (let i = 0; i < N; i++) {
+    const angle = (Math.PI * 2 / N) * i - Math.PI / 2;
+    const labelR = R + 44;
+    const x = cx + labelR * Math.cos(angle);
+    const y = cy + labelR * Math.sin(angle);
+    ctx.fillStyle = colors[i];
+    ctx.fillText(labels[i], x, y);
+  }
+
+  ctx.font = "600 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.fillText(TYPES[typeKey].name, cx, cy - 8);
+  ctx.font = "300 13px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#8E99A8";
+  ctx.fillText("焦虑 " + anxietyAvg.toFixed(1) + " · 回避 " + avoidAvg.toFixed(1), cx, cy + 16);
+}
+
+// ============ 四象限图 ============
+function drawQuadrant(typeKey, anxietyAvg, avoidAvg) {
+  const canvas = document.getElementById("quadrantCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  
+  const W = 900, H = 900;
+  const left = 130, right = 80, top = 80, bottom = 120;
+  const plotW = W - left - right;
+  const plotH = H - top - bottom;
+  const maxVal = 7;
+  const threshold = 4.0;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const toX = (a) => left + (a / maxVal) * plotW;
+  const toY = (v) => top + plotH - (v / maxVal) * plotH;
+
+  const quadrants = [
+    {
+      x: left, y: toY(threshold),
+      w: toX(threshold) - left, h: toY(0) - toY(threshold),
+      fill: "rgba(107, 158, 122, 0.10)", name: "安全型", desc: "低焦虑 · 低回避",
+      lc: "#6B9E7A", anchorX: left + plotW * 0.08, anchorY: toY(0) - plotH * 0.08, align: "left"
+    },
+    {
+      x: toX(threshold), y: toY(threshold),
+      w: toX(maxVal) - toX(threshold), h: toY(0) - toY(threshold),
+      fill: "rgba(212, 145, 93, 0.10)", name: "焦虑型", desc: "高焦虑 · 低回避",
+      lc: "#D4915D", anchorX: left + plotW * 0.92, anchorY: toY(0) - plotH * 0.08, align: "right"
+    },
+    {
+      x: left, y: top,
+      w: toX(threshold) - left, h: toY(threshold) - top,
+      fill: "rgba(91, 127, 165, 0.10)", name: "回避型", desc: "低焦虑 · 高回避",
+      lc: "#5B7FA5", anchorX: left + plotW * 0.08, anchorY: top + plotH * 0.08, align: "left"
+    },
+    {
+      x: toX(threshold), y: top,
+      w: toX(maxVal) - toX(threshold), h: toY(threshold) - top,
+      fill: "rgba(155, 107, 122, 0.10)", name: "恐惧型", desc: "高焦虑 · 高回避",
+      lc: "#9B6B7A", anchorX: left + plotW * 0.92, anchorY: top + plotH * 0.08, align: "right"
+    }
+  ];
+
+  quadrants.forEach(q => {
+    ctx.fillStyle = q.fill;
+    ctx.fillRect(q.x, q.y, q.w, q.h);
+  });
+
+  ctx.strokeStyle = "#C8C5BE";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(left, top, plotW, plotH);
+
+  ctx.setLineDash([8, 8]);
+  ctx.strokeStyle = "#B0AEA8";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(toX(threshold), top);
+  ctx.lineTo(toX(threshold), top + plotH);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(left, toY(threshold));
+  ctx.lineTo(left + plotW, toY(threshold));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.font = "500 16px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#8E99A8";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  for (let i = 0; i <= maxVal; i++) {
+    ctx.fillText(i.toString(), toX(i), top + plotH + 12);
+  }
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  for (let i = 0; i <= maxVal; i++) {
+    ctx.fillText(i.toString(), left - 12, toY(i));
+  }
+
+  ctx.font = "600 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText("依恋焦虑 →", left + plotW / 2, top + plotH + 45);
+
+  ctx.save();
+  ctx.translate(left - 75, top + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  ctx.fillText("依恋回避 →", 0, 0);
+  ctx.restore();
+
+  quadrants.forEach(q => {
+    ctx.textAlign = q.align;
+    ctx.textBaseline = "middle";
+    ctx.font = "600 24px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+    ctx.fillStyle = q.lc;
+    ctx.fillText(q.name, q.anchorX, q.anchorY - 16);
+    ctx.font = "400 16px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+    ctx.fillStyle = "#8E99A8";
+    ctx.fillText(q.desc, q.anchorX, q.anchorY + 16);
+  });
+
+  const px = toX(anxietyAvg);
+  const py = toY(avoidAvg);
+
+  ctx.beginPath();
+  ctx.arc(px, py, 30, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(124, 141, 165, 0.15)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(px, py, 18, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(124, 141, 165, 0.45)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(px, py, 11, 0, Math.PI * 2);
+  ctx.fillStyle = "#2D3A4A";
+  ctx.fill();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  let labelX = px + 30;
+  let labelAlign = "left";
+  if (px > W - 250) {
+    labelX = px - 30;
+    labelAlign = "right";
+  }
+  let labelY = py - 30;
+  if (py < top + 60) labelY = py + 40;
+
+  ctx.textAlign = labelAlign;
+  ctx.textBaseline = "middle";
+  ctx.font = "600 18px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.fillText("你的位置", labelX, labelY);
+  ctx.font = "500 15px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#8E99A8";
+  ctx.fillText(`焦虑 ${anxietyAvg.toFixed(1)} · 回避 ${avoidAvg.toFixed(1)}`, labelX, labelY + 24);
+}
+
+// ============ 分享卡片绘制 ============
+function drawShareCard(typeKey, anxietyAvg, avoidAvg) {
+  const canvas = document.getElementById("shareCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const W = 750, H = 1050;
+  const t = TYPES[typeKey];
+
+  // 背景
+  ctx.fillStyle = "#F7F6F3";
+  ctx.fillRect(0, 0, W, H);
+
+  // 顶部装饰条
+  ctx.fillStyle = t.tagColor;
+  ctx.fillRect(0, 0, W, 8);
+
+  // 顶部小标题
+  ctx.font = "400 22px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#8E99A8";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText("成人依恋类型测试", W / 2, 60);
+
+  // 日期
+  const d = new Date();
+  const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  ctx.font = "300 18px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#B0AEA8";
+  ctx.fillText(dateStr, W / 2, 96);
+
+  // 类型标签（颜色胶囊）
+  ctx.font = "400 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  const enText = t.en;
+  const enWidth = ctx.measureText(enText).width + 44;
+  const tagX = (W - enWidth) / 2;
+  const tagY = 165;
+  const tagH = 40;
+  ctx.fillStyle = t.tagColor;
+  roundRect(ctx, tagX, tagY, enWidth, tagH, 20);
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(enText, W / 2, tagY + tagH / 2);
+
+  // 类型名（大）
+  ctx.font = "700 76px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.textBaseline = "top";
+  ctx.fillText(t.name, W / 2, 245);
+
+  // 类型简短描述
+  ctx.font = "400 22px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#8E99A8";
+  ctx.textBaseline = "top";
+  ctx.fillText(t.short, W / 2, 360);
+
+  // 分隔线
+  ctx.strokeStyle = "#E2E0DB";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(120, 430);
+  ctx.lineTo(W - 120, 430);
+  ctx.stroke();
+
+  // 两个主维度得分
+  const barX = 200;
+  const barW = 370;
+  const barH = 14;
+  const barR = 7;
+
+  // 焦虑
+  ctx.font = "500 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText("依恋焦虑", 100, 495);
+
+  ctx.fillStyle = "#E2E0DB";
+  roundRect(ctx, barX, 488, barW, barH, barR);
+  ctx.fill();
+  ctx.fillStyle = "#D4915D";
+  roundRect(ctx, barX, 488, Math.max(barW * anxietyAvg / 7, barH), barH, barR);
+  ctx.fill();
+
+  ctx.font = "600 22px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#D4915D";
+  ctx.textAlign = "right";
+  ctx.fillText(anxietyAvg.toFixed(1), W - 100, 495);
+
+  // 回避
+  ctx.font = "500 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#2D3A4A";
+  ctx.textAlign = "left";
+  ctx.fillText("依恋回避", 100, 565);
+
+  ctx.fillStyle = "#E2E0DB";
+  roundRect(ctx, barX, 558, barW, barH, barR);
+  ctx.fill();
+  ctx.fillStyle = "#5B7FA5";
+  roundRect(ctx, barX, 558, Math.max(barW * avoidAvg / 7, barH), barH, barR);
+  ctx.fill();
+
+  ctx.font = "600 22px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#5B7FA5";
+  ctx.textAlign = "right";
+  ctx.fillText(avoidAvg.toFixed(1), W - 100, 565);
+
+  // 简短类型描述（复制类型名字下面的描述）
+  ctx.font = "400 20px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#5A6577";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  const descText = getShortDesc(typeKey);
+  wrapText(ctx, descText, 100, 660, W - 200, 32);
+
+  // 底部信息
+  ctx.strokeStyle = "#E2E0DB";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(120, H - 130);
+  ctx.lineTo(W - 120, H - 130);
+  ctx.stroke();
+
+  ctx.font = "400 16px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#B0AEA8";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText("基于 Bartholomew & Horowitz 成人依恋四类型模型", W / 2, H - 110);
+  ctx.fillText("仅供自我探索 · 不构成心理诊断", W / 2, H - 80);
+}
+
+function getShortDesc(typeKey) {
+  const descs = {
+    secure: "你在亲密关系中拥有一种难得的从容。既能安心地亲近他人，也能保持清晰的自我边界；既不过度担忧被抛弃，也不排斥深入的联结。",
+    anxious: "你对亲密关系有着深切的渴望，愿意为爱全情投入，但常常被一种挥之不去的担忧所困扰——担心他人没有自己爱得那么深，担心终会离开。",
+    avoidant: "你高度重视独立与自我空间，对过度的亲密会本能地感到不适。这并非不在乎，而是一种曾经的自我保护——当表达需求不再安全，人学会将情感收回。",
+    fearful: "你的内心住着两种彼此拉扯的力量：一种是对亲密的深切渴望，另一种是对亲密的深切恐惧。你在靠近与远离之间反复摇摆——想要被爱，又害怕受伤。"
+  };
+  return descs[typeKey] || "";
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const chars = text.split("");
+  let line = "";
+  let currentY = y;
+  for (let i = 0; i < chars.length; i++) {
+    const testLine = line + chars[i];
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && line !== "") {
+      ctx.fillText(line, x, currentY);
+      line = chars[i];
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) ctx.fillText(line, x, currentY);
+}
+
+// ============ 下载分享卡片 ============
+function downloadShareCard() {
+  const canvas = document.getElementById("shareCanvas");
+  if (!canvas) return;
+  try {
+    const link = document.createElement("a");
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    link.download = `依恋类型测试_${currentResult ? TYPES[currentResult.typeKey].name : '结果'}_${dateStr}.png`;
+    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (e) {
+    alert("图片下载失败，你可以长按图片保存到相册。");
+    console.warn(e);
+  }
+}
+
+// ============ 历史记录管理 ============
+const HISTORY_KEY = "attachment_test_history_v1";
+
+function saveToHistory(result) {
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+    history.unshift({
+      date: result.date,
+      typeKey: result.typeKey,
+      anxiety: result.anxietyAvg,
+      avoidance: result.avoidAvg
+    });
+    // 保留最近 10 次
+    const trimmed = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+  } catch (e) {
+    console.warn("无法保存历史记录", e);
+  }
+}
+
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function renderHistory() {
+  const container = document.getElementById("historyContainer");
+  if (!container) return;
+
+  const history = loadHistory();
+  if (history.length === 0) {
+    container.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+    return;
+  }
+
+  let html = "";
+  history.forEach((item, idx) => {
+    const t = TYPES[item.typeKey];
+    const d = new Date(item.date);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const isLatest = idx === 0;
+    html += `<div class="history-item">
+      <span class="hist-date">${dateStr} ${timeStr}${isLatest ? ' · 本次' : ''}</span>
+      <span class="hist-type" style="background:${t.tagColor}">${t.name}</span>
+      <span class="hist-score">焦虑 ${item.anxiety.toFixed(1)} · 回避 ${item.avoidance.toFixed(1)}</span>
+    </div>`;
+  });
+  html += '<div class="history-clear" onclick="clearHistory()">清空历史记录</div>';
+  container.innerHTML = html;
+}
+
+function clearHistory() {
+  if (!confirm("确定要清空所有历史记录吗？此操作不可撤销。")) return;
+  try {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
+// ============ 重新测试 ============
+function restartTest() {
+  answers = new Array(SHUFFLED.length).fill(null);
+  currentResult = null;
+  document.getElementById("resultPage").style.display = "none";
+  document.getElementById("resultPage").innerHTML = "";
+  document.getElementById("progressBar").style.width = "0%";
+  document.getElementById("introPage").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+</body>
+</html>
